@@ -99,7 +99,7 @@ use constant payloadTypesToStr => qw{ P_STRING P_BYTE P_INT16 P_UINT16 P_LONG32 
 use constant topicRoot => '/mySensors';    # Include leading slash, omit trailing slash
 
 my $mqttHost = 'localhost';         # Hostname of MQTT broker
-my $mqttPort = 8883;                # Port of MQTT broker
+my $mqttPort = 1883;                # Port of MQTT broker
 my $mysnsHost = '192.168.1.10';     # IP of MySensors Ethernet gateway
 my $mysnsPort = 5003;               # Port of MySensors Ethernet gateway
 my $retain = 1;
@@ -231,9 +231,18 @@ sub create_handle {
         my ($handle, $line) = @_;
         onSerialRead($line);
       });
-    }
+    },
+    rtimeout => 15*60,
+    on_rtimeout => \&serial_timeout
   );
 }  
+
+sub serial_timeout {
+	my ($handle) = @_;
+	debug("Read timeout on serial port, destroying handle!");
+  	$handle->destroy();
+  	$serialHandle = create_handle();
+}
     
 sub parseMsg
 {
@@ -581,6 +590,6 @@ while (1)
     print "Exception: ".$@."\n";
     doShutdown();
     print "Restarting...\n";
-        exit (0);
+#        exit (0);
   }
 }
