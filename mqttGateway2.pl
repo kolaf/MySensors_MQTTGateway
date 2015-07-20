@@ -240,8 +240,11 @@ sub create_handle {
 sub serial_timeout {
 	my ($handle) = @_;
 	debug("Read timeout on serial port, destroying handle!");
-  	$handle->destroy();
+  	$serialHandle->destroy();
+  	initialiseSerialPort();
+  	$serialDevice->close();
   	$serialHandle = create_handle();
+  	return 1;
 }
     
 sub parseMsg
