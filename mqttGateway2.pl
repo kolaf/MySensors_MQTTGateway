@@ -117,7 +117,7 @@ my @subscriptions;
 
 sub debug
 {
-  print "##" . join(" ", @_)."\n";
+  print "## ".(localtime)." #" . join(" ", @_)."\n";
 }
 
 sub saveNode
@@ -180,7 +180,7 @@ sub findFreeID
 sub initialiseSerialPort
 {
   print "Initialising serial port  $serialPort\n";
-	$serialDevice =  tie (*FH, 'Device::SerialPort',$serialPort)
+	$serialDevice =  tie (*fh, 'Device::SerialPort',$serialPort)
     || die "Can't tie: $!";
 	$serialDevice->baudrate(115200);
 	$serialDevice->databits(8);
@@ -232,7 +232,7 @@ sub create_handle {
         onSerialRead($line);
       });
     },
-    rtimeout => 15*60,
+    rtimeout => 6*60,
     on_rtimeout => \&serial_timeout
   );
 }  
@@ -241,8 +241,8 @@ sub serial_timeout {
 	my ($handle) = @_;
 	debug("Read timeout on serial port, destroying handle!");
   	$serialHandle->destroy();
-  	initialiseSerialPort();
   	$serialDevice->close();
+  	initialiseSerialPort();
   	$serialHandle = create_handle();
   	return 1;
 }
